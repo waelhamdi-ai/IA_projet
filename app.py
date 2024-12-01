@@ -44,5 +44,6 @@ def predict():
 def send_static(path):
     return send_from_directory('static', path)
 
+# Ensure the app binds to the correct host and port when deployed on Render
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
