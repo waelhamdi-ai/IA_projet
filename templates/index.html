@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('send_static', path='css/style.css') }}">
+</head>
+<body>
+    <h1>Brain Tumor Classifier</h1>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data" action="/predict">
+        <input type="file" id="imageInput" accept="image/*" required>
+        <button type="submit">Predict</button>
+    </form>
+    <div id="result"></div>
+    <img id="preview" style="display: none;">
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultDiv = document.getElementById('result');
+        const preview = document.getElementById('preview');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('imageInput').files[0];
+            if (!fileInput) return;
+
+            // Preview the image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(fileInput);
+
+            // Send the image to the backend
+            const formData = new FormData();
+            formData.append('file', fileInput);
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+            resultDiv.textContent = `Prediction: ${result.class} (Confidence: ${(result.confidence * 100).toFixed(2)}%)`;
+        };
+    </script>
+</body>
+</html>
